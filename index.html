@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeHaven — Buy & Sell Real Estate</title>
+<style>
+  :root{--navy:#0f2a43;--gold:#d4a94e;--light:#f7f5f0;--dark:#22303c;--green:#2e7d5b;}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+  body{background:var(--light);color:var(--dark)}
+  header{background:var(--navy);color:#fff;padding:14px 5%;display:flex;align-items:center;gap:24px;position:sticky;top:0;z-index:50}
+  .logo{font-size:1.4rem;font-weight:800;letter-spacing:.5px}
+  .logo span{color:var(--gold)}
+  nav a{color:#cdd8e2;text-decoration:none;margin:0 12px;font-size:.95rem}
+  nav a:hover{color:#fff}
+  .btn{background:var(--gold);color:#1a1a1a;border:none;padding:10px 22px;border-radius:6px;cursor:pointer;font-weight:700;font-size:.95rem}
+  .btn:hover{filter:brightness(1.1)}
+  .btn-outline{background:transparent;border:2px solid var(--gold);color:var(--gold)}
+  .btn-ghost{background:transparent;border:1px solid #aaa;color:var(--dark)}
+  .hero{background:linear-gradient(rgba(15,42,67,.85),rgba(15,42,67,.85)),url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600') center/cover;color:#fff;text-align:center;padding:90px 20px}
+  .hero h1{font-size:2.6rem;margin-bottom:12px}
+  .hero p{font-size:1.15rem;color:#c9d6e2;margin-bottom:28px}
+  .searchbar{display:flex;gap:10px;max-width:760px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+  .searchbar input,.searchbar select{padding:12px;border-radius:6px;border:none;min-width:150px;font-size:1rem}
+  section{padding:60px 5%}
+  h2.section{font-size:1.9rem;margin-bottom:8px}
+  .sub{color:#66707a;margin-bottom:28px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px}
+  .card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);cursor:pointer;transition:transform .15s}
+  .card:hover{transform:translateY(-4px)}
+  .card img{width:100%;height:190px;object-fit:cover}
+  .card .body{padding:14px}
+  .price{color:var(--navy);font-weight:800;font-size:1.2rem}
+  .tag{position:absolute;background:var(--gold);color:#1a1a1a;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:4px}
+  .card .imgwrap{position:relative}
+  .fav{position:absolute;top:10px;right:10px;background:#fff;border:none;border-radius:50%;width:34px;height:34px;font-size:1.1rem;cursor:pointer}
+  .meta{color:#66707a;font-size:.88rem;margin-top:6px}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px}
+  .step{background:#fff;border-left:4px solid var(--gold);padding:18px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .step b{display:block;color:var(--navy);margin-bottom:6px}
+  .step .num{color:var(--gold);font-size:1.6rem;font-weight:800}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;overflow:auto}
+  .modal .inner{background:#fff;max-width:820px;margin:40px auto;border-radius:12px;overflow:hidden}
+  .modal .head{height:320px;background-size:cover;background-position:center}
+  .modal .content{padding:24px}
+  .close{float:right;background:var(--navy);color:#fff;border:none;padding:8px 14px;cursor:pointer;border-radius:6px}
+  form.auth, form.post{max-width:420px;margin:0 auto;background:#fff;padding:28px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+  input,select,textarea{width:100%;padding:11px;margin:8px 0;border:1px solid #ccd;border-radius:6px;font-size:.95rem}
+  label{font-weight:600;font-size:.85rem}
+  .muted{color:#889;font-size:.85rem}
+  footer{background:var(--navy);color:#9fb1c1;text-align:center;padding:30px;font-size:.9rem}
+  .hidden{display:none}
+  .pill{background:#eef3f7;border-radius:20px;padding:6px 14px;font-size:.85rem;display:inline-block;margin:4px 4px 0 0;cursor:pointer}
+  .pill.on{background:var(--navy);color:#fff}
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:12px 24px;border-radius:8px;display:none;z-index:200}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Home<span>Haven</span></div>
+  <nav>
+    <a href="#" onclick="showPage('home')">Home</a>
+    <a href="#" onclick="showPage('listings')">Listings</a>
+    <a href="#" onclick="showPage('buy')">Buy (6 Steps)</a>
+    <a href="#" onclick="showPage('sell')">Sell (6 Steps)</a>
+  </nav>
+  <div style="margin-left:auto" id="authArea"></div>
+</header>
+
+<!-- HOME -->
+<div id="page-home">
+  <div class="hero">
+    <h1>Find The Place You'll Call Home</h1>
+    <p>Thousands of houses, apartments & land — buy or sell with confidence.</p>
+    <div class="searchbar">
+      <input id="heroQ" placeholder="City, ZIP or keyword…">
+      <select id="heroType"><option value="">Any type</option><option>House</option><option>Apartment</option><option>Condo</option><option>Land</option></select>
+      <select id="heroMax"><option value="">Any budget</option><option value="200000">Under $200k</option><option value="500000">Under $500k</option><option value="1000000">Under $1M</option></select>
+      <button class="btn" onclick="heroSearch()">Search</button>
+    </div>
+  </div>
+
+  <section>
+    <h2 class="section">How It Works</h2>
+    <p class="sub">Step 1: create an account. Steps 2–6 guide you all the way to the keys.</p>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><b>Create Account</b>Sign up free in under a minute.</div>
+      <div class="step"><span class="num">2</span><b>Browse Listings</b>Filter by price, beds, type & city.</div>
+      <div class="step"><span class="num">3</span><b>Save Favorites</b>Shortlist homes you love.</div>
+      <div class="step"><span class="num">4</span><b>Make an Offer</b>Submit your offer with a mortgage pre-check.</div>
+      <div class="step"><span class="num">5</span><b>Sign Contract</b>Our partner escrow secures the deal.</div>
+      <div class="step"><span class="num">6</span><b>Get the Keys</b>Closing day — welcome home!</div>
+    </div>
+  </section>
+
+  <section style="background:#fff">
+    <h2 class="section">Featured Homes</h2>
+    <div class="grid" id="featuredGrid"></div>
+  </section>
+</div>
+
+<!-- LISTINGS -->
+<div id="page-listings" class="hidden">
+  <section>
+    <h2 class="section">All Listings</h2>
+    <input id="q" placeholder="Search city, address, keyword…" oninput="renderListings()" style="max-width:400px">
+    <div>
+      <span class="pill on" onclick="filterType('',this)">All</span><span class="pill" onclick="filterType('House',this)">Houses</span>
+      <span class="pill" onclick="filterType('Apartment',this)">Apartments</span><span class="pill" onclick="filterType('Condo',this)">Condos</span>
+      <span class="pill" onclick="filterType('Land',this)">Land</span>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+      <select id="fMax" onchange="renderListings()"><option value="">Max price</option><option value="200000">$200k</option><option value="500000">$500k</option><option value="1000000">$1M</option><option value="5000000">$5M</option></select>
+      <select id="fBeds" onchange="renderListings()"><option value="">Beds</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      <select id="fSort" onchange="renderListings()"><option value="">Sort</option><option value="asc">Price ↑</option><option value="desc">Price ↓</option></select>
+    </div>
+    <div class="grid" id="listingsGrid" style="margin-top:26px"></div>
+  </section>
+</div>
+
+<!-- BUY -->
+<div id="page-buy" class="hidden">
+  <section>
+    <h2 class="section">Buying in 6 Steps</h2>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><b>Browse</b>Search listings and compare homes side by side.</div>
+      <div class="step"><span class="num">2</span><b>Save & Tour</b>Add favorites and book a viewing.</div>
+      <div class="step"><span class="num">3</span><b>Offer</b>Submit an offer — seller has 48h to respond.</div>
+      <div class="step"><span class="num">4</span><b>Financing</b>Use our mortgage calculator & get pre-approved.</div>
+      <div class="step"><span class="num">5</span><b>Contract</b>E-sign the purchase agreement in escrow.</div>
+      <div class="step"><span class="num">6</span><b>Close</b>Inspection, title check, keys in hand. 🏡</div>
+    </div>
+    <h2 class="section" style="margin-top:40px">Mortgage Calculator</h2>
+    <form class="auth" onsubmit="event.preventDefault();calcMortgage()">
+      <label>Home price ($)</label><input id="mcPrice" type="number" value="450000">
+      <label>Down payment ($)</label><input id="mcDown" type="number" value="90000">
+      <label>Interest rate (%)</label><input id="mcRate" type="number" step="0.1" value="6.5">
+      <label>Years</label><input id="mcYears" type="number" value="30">
+      <button class="btn" style="margin-top:10px">Calculate</button>
+      <div id="mcResult" style="margin-top:14px;font-weight:700"></div>
+    </form>
+  </section>
+</div>
+
+<!-- SELL -->
+<div id="page-sell" class="hidden">
+  <section>
+    <h2 class="section">Selling in 6 Steps</h2>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><b>Create Listing</b>Describe your property in minutes.</div>
+      <div class="step"><span class="num">2</span><b>Add Photos</b>Upload photos — great pics sell 3x faster.</div>
+      <div class="step"><span class="num">3</span><b>Set Price</b>Get an instant price estimate from comps.</div>
+      <div class="step"><span class="num">4</span><b>Viewings</b>Manage tour requests from your dashboard.</div>
+      <div class="step"><span class="num">5</span><b>Review Offers</b>Compare offers and pick your buyer.</div>
+      <div class="step"><span class="num">6</span><b>Complete Sale</b>Escrow handles paperwork & payout.</div>
+    </div>
+    <h2 class="section" style="margin-top:40px">Post Your Listing</h2>
+    <form class="post" id="postForm" onsubmit="event.preventDefault();postListing()">
+      <label>Title</label><input id="pTitle" required>
+      <label>Type</label><select id="pType"><option>House</option><option>Apartment</option><option>Condo</option><option>Land</option></select>
+      <label>Price ($)</label><input id="pPrice" type="number" required>
+      <label>City</label><input id="pCity" required>
+      <label>Beds</label><input id="pBeds" type="number" value="3">
+      <label>Baths</label><input id="pBaths" type="number" value="2">
+      <label>Area (sqft)</label><input id="pArea" type="number" value="1500">
+      <label>Photo URL</label><input id="pImg" value="https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800" required>
+      <label>Description</label><textarea id="pDesc" rows="3"></textarea>
+      <button class="btn" style="margin-top:10px">Publish Listing</button>
+      <p class="muted" style="margin-top:8px">Requires an account (Step 1!).</p>
+    </form>
+  </section>
+</div>
+
+<!-- AUTH -->
+<div id="page-auth" class="hidden">
+  <section>
+    <h2 class="section" style="text-align:center">Step 1 — Create Your Account</h2>
+    <form class="auth" onsubmit="event.preventDefault();register()">
+      <label>Full name</label><input id="rName" required>
+      <label>Email</label><input id="rEmail" type="email" required>
+      <label>Password</label><input id="rPass" type="password" required>
+      <button class="btn" style="margin-top:10px">Sign Up Free</button>
+      <p class="muted">Already registered? <a href="#" onclick="showPage('login')">Log in</a></p>
+    </form>
+  </section>
+</div>
+<div id="page-login" class="hidden">
+  <section>
+    <h2 class="section" style="text-align:center">Welcome Back</h2>
+    <form class="auth" onsubmit="event.preventDefault();login()">
+      <label>Email</label><input id="lEmail" type="email" required>
+      <label>Password</label><input id="lPass" type="password" required>
+      <button class="btn" style="margin-top:10px">Log In</button>
+      <p class="muted">New here? <a href="#" onclick="showPage('auth')">Create account</a></p>
+    </form>
+  </section>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal" id="modal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="inner">
+    <div class="head" id="mImg"></div>
+    <div class="content">
+      <button class="close" onclick="modal.style.display='none'">Close</button>
+      <h2 id="mTitle"></h2>
+      <p id="mAddr" class="muted"></p>
+      <h3 id="mPrice" style="color:var(--navy)"></h3>
+      <p id="mMeta" class="meta"></p>
+      <p id="mDesc" style="margin:14px 0"></p>
+      <button class="btn" onclick="makeOffer()">Make an Offer (Step 3)</button>
+      <button class="btn btn-outline" onclick="bookTour()">Book Viewing</button>
+      <button class="btn btn-ghost" onclick="msgAgent()">Contact Agent</button>
+      <div id="offerBox" class="hidden" style="margin-top:16px;background:#eef3f7;padding:16px;border-radius:8px">
+        <label>Your offer ($)</label><input id="offerAmt" type="number">
+        <button class="btn" style="margin-top:8px" onclick="submitOffer()">Submit Offer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<footer>© 2026 HomeHaven Real Estate — Buy & Sell with Confidence</footer>
+
+<script>
+const seed=[
+ {id:1,title:"Sunlit Family House",type:"House",price:489000,city:"Austin, TX",beds:4,baths:3,area:2400,img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800",desc:"Charming 4-bed house with a big backyard and modern kitchen.",featured:true},
+ {id:2,title:"Downtown Skyline Apartment",type:"Apartment",price:325000,city:"Chicago, IL",beds:2,baths:2,area:1100,img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800",desc:"Floor-to-ceiling windows, gym & rooftop pool included.",featured:true},
+ {id:3,title:"Cozy Suburban Home",type:"House",price:279000,city:"Denver, CO",beds:3,baths:2,area:1650,img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800",desc:"Quiet street, great schools, freshly renovated baths.",featured:true},
+ {id:4,title:"Beachfront Condo",type:"Condo",price:710000,city:"Miami, FL",beds:2,baths:2,area:1300,img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800",desc:"Ocean views from every room. Concierge & private beach.",featured:true},
+ {id:5,title:"Modern Loft",type:"Apartment",price:415000,city:"Seattle, WA",beds:1,baths:1,area:900,img:"https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=800",desc:"Exposed brick, industrial style, walk to everything."},
+ {id:6,title:"Hillside Building Lot",type:"Land",price:120000,city:"Phoenix, AZ",beds:0,baths:0,area:21780,img:"https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800",desc:"Half-acre lot, utilities at street, mountain views."}
+];
+let listings=JSON.parse(localStorage.getItem('hh_listings')||'null')||seed;
+let users=JSON.parse(localStorage.getItem('hh_users')||'[]');
+let session=JSON.parse(localStorage.getItem('hh_session')||'null');
+let favs=JSON.parse(localStorage.getItem('hh_favs')||'[]');
+let curType='',curId=null;
+const $=id=>document.getElementById(id);
+const money=n=>'$'+n.toLocaleString();
+function save(){localStorage.setItem('hh_listings',JSON.stringify(listings));localStorage.setItem('hh_users',JSON.stringify(users));localStorage.setItem('hh_session',JSON.stringify(session));localStorage.setItem('hh_favs',JSON.stringify(favs));}
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
+
+function showPage(p){
+  ['home','listings','buy','sell','auth','login'].forEach(x=>$('page-'+x).classList.add('hidden'));
+  $('page-'+p).classList.remove('hidden');
+  if(p==='listings')renderListings();
+  window.scrollTo(0,0);
+}
+function heroSearch(){$('q').value=$('heroQ').value;$('fMax').value=$('heroMax').value;curType=$('heroType').value;showPage('listings');}
+function filterType(t,el){curType=t;document.querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));el.classList.add('on');renderListings();}
+
+function card(l){
+  return `<div class="card" onclick="openDetail(${l.id})"><div class="imgwrap"><img src="${l.img}" alt=""><button class="fav" onclick="event.stopPropagation();toggleFav(${l.id})">${favs.includes(l.id)?'❤️':'🤍'}</button></div>
+  <div class="body"><div class="price">${money(l.price)}</div><b>${l.title}</b><div class="meta">📍 ${l.city} · ${l.type} · ${l.beds} bd · ${l.baths} ba · ${l.area.toLocaleString()} sqft</div></div></div>`;
+}
+function renderListings(){
+  const q=($('q').value||'').toLowerCase(),max=+$('fMax').value||Infinity,beds=+$('fBeds').value||0,sort=$('fSort').value;
+  let r=listings.filter(l=>(!q||l.title.toLowerCase().includes(q)||l.city.toLowerCase().includes(q))&&l.price<=max&&l.beds>=beds&&(!curType||l.type===curType));
+  if(sort)r.sort((a,b)=>sort==='asc'?a.price-b.price:b.price-a.price);
+  $('listingsGrid').innerHTML=r.length?r.map(card).join(''):'<p>No listings match. Try wider filters.</p>';
+}
+function openDetail(id){curId=id;const l=listings.find(x=>x.id===id);
+  $('mImg').style.backgroundImage=`url('${l.img}')`;$('mTitle').textContent=l.title;$('mAddr').textContent=l.city;
+  $('mPrice').textContent=money(l.price);$('mMeta').textContent=`${l.type} · ${l.beds} beds · ${l.baths} baths · ${l.area.toLocaleString()} sqft`;$('mDesc').textContent=l.desc||'';
+  $('offerBox').classList.add('hidden');$('modal').style.display='block';}
+function toggleFav(id){if(!session){toast('Create an account first (Step 1)!');showPage('auth');return;}
+  favs.includes(id)?favs=favs.filter(x=>x!==id):favs.push(id);save();renderListings();toast(favs.includes(id)?'Saved to favorites ❤️':'Removed from favorites');}
+function makeOffer(){$('offerBox').classList.remove('hidden');}
+function submitOffer(){const a=+$('offerAmt').value;if(!a)return toast('Enter an amount');
+  if(!session){toast('Log in to submit an offer');return;}
+  toast(`✅ Offer of ${money(a)} submitted! Seller has 48h to respond.`);$('offerBox').classList.add('hidden');}
+function bookTour(){session?toast('📅 Viewing request sent! Agent will confirm by email.'):toast('Please log in first');}
+function msgAgent(){session?toast('💬 Message sent to the listing agent!'):toast('Please log in first');}
+function calcMortgage(){const p=+$('mcPrice').value,d=+$('mcDown').value,r=+$('mcRate').value/100/12,n=+$('mcYears').value*12,l=p-d;
+  const m=l?l*r/(1-Math.pow(1+r,-n)):0;$('mcResult').textContent=`Monthly payment: ${money(Math.round(m))} (loan ${money(l)})`;}
+
+function register(){users.push({name:$('rName').value,email:$('rEmail').value.toLowerCase(),pass:$('rPass').value});session={email:$('rEmail').value.toLowerCase(),name:$('rName').value};save();updateAuth();showPage('listings');toast('🎉 Account created! You\'re on Step 2: browse listings.');}
+function login(){const u=users.find(u=>u.email===$('lEmail').value.toLowerCase()&&u.pass===$('lPass').value);
+  if(!u)return toast('Invalid email or password');session={email:u.email,name:u.name};save();updateAuth();showPage('listings');toast(`Welcome back, ${u.name}!`);}
+function logout(){session=null;save();updateAuth();showPage('home');toast('Logged out');}
+function updateAuth(){$('authArea').innerHTML=session?`<span style="margin-right:10px">Hi, ${session.name.split(' ')[0]}</span><button class="btn" onclick="logout()">Log out</button>`:`<button class="btn btn-outline" onclick="showPage('login')">Log in</button> <button class="btn" onclick="showPage('auth')">Sign Up</button>`;}
+function postListing(){if(!session){toast('Create an account first (Step 1)!');showPage('auth');return;}
+  listings.unshift({id:Date.now(),title:$('pTitle').value,type:$('pType').value,price:+$('pPrice').value,city:$('pCity').value,beds:+$('pBeds').value,baths:+$('pBaths').value,area:+$('pArea').value,img:$('pImg').value,desc:$('pDesc').value});
+  save();toast('🎉 Listing published — Step 3 done! Now manage viewings (Step 4).');showPage('listings');}
+
+renderListings();updateAuth();
+</script>
+</body>
+</html>
